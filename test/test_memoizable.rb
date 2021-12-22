@@ -2,25 +2,26 @@
 
 require "test_helper"
 
+class Item
+  include ::Straw::Memoizable
+
+  attr_reader :calls
+
+  def initialize
+    @calls = Hash.new { |h, k| h[k] = 0 }
+  end
+
+  def value(item)
+    memoize(:value) do
+      @calls[:value] += 1
+      item
+    end
+  end
+end
+
 describe ::Straw::Memoizable do
   def setup
-    item_clazz = Class.new do
-      include ::Straw::Memoizable
-
-      attr_reader :calls
-
-      def initialize
-        @calls = Hash.new { |h, k| h[k] = 0 }
-      end
-
-      def value(item)
-        memoize(:value) do
-          @calls[:value] += 1
-          item
-        end
-      end
-    end
-    @subject = item_clazz.new
+    @subject = Item.new
   end
 
   describe "#memoize" do
@@ -46,4 +47,3 @@ describe ::Straw::Memoizable do
     end
   end
 end
-
